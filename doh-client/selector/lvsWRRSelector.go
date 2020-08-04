@@ -26,7 +26,7 @@ func NewLVSWRRSelector(timeout time.Duration) *LVSWRRSelector {
 
 func (ls *LVSWRRSelector) Add(url string, upstreamType UpstreamType, weight int32) (err error) {
 	if weight < 1 {
-		return errors.New("weight is 1")
+		return errors.New("weight should be at least 1")
 	}
 
 	switch upstreamType {
@@ -82,11 +82,8 @@ func (ls *LVSWRRSelector) StartEvaluate() {
 
 					req, err := http.NewRequest(http.MethodGet, upstreamURL, nil)
 					if err != nil {
-						/*log.Println("upstream:", upstreamURL, "type:", typeMap[upstream.Type], "check failed:", err)
-						continue*/
-
-						// should I only log it? But if there is an error, I think when query the server will return error too
-						panic("upstream: " + upstreamURL + " type: " + typeMap[ls.upstreams[i].Type] + " check failed: " + err.Error())
+						// The error can only happen if upstreamURL is malformed, in such case, we should fail-fast.
+						panic("bad upstream: " + upstreamURL + " type: " + typeMap[ls.upstreams[i].Type] + ": " + err.Error())
 					}
 
 					req.Header.Set("accept", acceptType)

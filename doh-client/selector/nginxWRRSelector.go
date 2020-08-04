@@ -75,11 +75,8 @@ func (ws *NginxWRRSelector) StartEvaluate() {
 
 					req, err := http.NewRequest(http.MethodGet, upstreamURL, nil)
 					if err != nil {
-						/*log.Println("upstream:", upstreamURL, "type:", typeMap[upstream.Type], "check failed:", err)
-						continue*/
-
-						// should I only log it? But if there is an error, I think when query the server will return error too
-						panic("upstream: " + upstreamURL + " type: " + typeMap[ws.upstreams[i].Type] + " check failed: " + err.Error())
+						// The error can only happen if upstreamURL is malformed, in such case, we should fail-fast.
+						panic("bad upstream: " + upstreamURL + " type: " + typeMap[ws.upstreams[i].Type] + ": " + err.Error())
 					}
 
 					req.Header.Set("accept", acceptType)
