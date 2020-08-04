@@ -24,6 +24,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/BurntSushi/toml"
@@ -43,7 +44,7 @@ type upstreamDetail struct {
 type upstream struct {
 	UpstreamGoogle   []upstreamDetail `toml:"upstream_google"`
 	UpstreamIETF     []upstreamDetail `toml:"upstream_ietf"`
-	UpstreamSelector string           `toml:"upstream_selector"` // usable: random or weighted_random
+	UpstreamSelector string           `toml:"upstream_selector"` // usable: (see constants listed above)
 }
 
 type others struct {
@@ -71,7 +72,7 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 	for _, key := range metaData.Undecoded() {
-		return nil, &configError{fmt.Sprintf("unknown option %q", key.String())}
+		return nil, errors.New(fmt.Sprintf("unknown option %q", key.String()))
 	}
 
 	if len(conf.Listen) == 0 {
@@ -89,12 +90,4 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	return conf, nil
-}
-
-type configError struct {
-	err string
-}
-
-func (e *configError) Error() string {
-	return e.err
 }
